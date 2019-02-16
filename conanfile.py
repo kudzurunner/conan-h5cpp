@@ -9,8 +9,6 @@ class H5cppConan(ConanFile):
     url = "https://github.com/kudzurunner/conan-h5cpp"
     description = "C++ wrapper for the HDF5 C-library"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False]}
-    default_options = "shared=True"
     generators = "cmake"
 
     requires = (
@@ -22,6 +20,9 @@ class H5cppConan(ConanFile):
         "bzip2/1.0.6@conan/stable")
 
     source_name = "{}-{}".format(name, version)
+
+    exports = (
+        "patches/*.patch")
 
     def configure(self):
         self.options["boost_system"].shared = True
@@ -36,6 +37,8 @@ class H5cppConan(ConanFile):
         tools.download(url, filename=archive_name)
         tools.untargz(filename=archive_name)
         os.remove(archive_name)
+
+        tools.patch(base_path=self.source_name, patch_file="patches/ssize_t.patch", strip=1)
 
     def build(self):
         cmake = CMake(self)

@@ -1,0 +1,19 @@
+diff -ruN a/src/h5cpp/core/windows.hpp b/src/h5cpp/core/windows.hpp
+--- a/src/h5cpp/core/windows.hpp	2019-02-16 21:34:14.677539000 +0300
++++ b/src/h5cpp/core/windows.hpp	2019-02-17 00:23:54.414531600 +0300
+@@ -36,9 +36,11 @@
+ #endif
+ 
+ #ifdef _MSC_VER
+-#include <BaseTsd.h>
+-
+-using ssize_t = SSIZE_T;
+-
++#if defined _M_IX86
++    using ssize_t = int;
++#elif defined _M_X64
++	#include <BaseTsd.h>
++	using ssize_t = SSIZE_T;
++#endif
+ #endif
+ 
