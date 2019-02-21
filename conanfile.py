@@ -1,5 +1,8 @@
 from conans import ConanFile, CMake, tools
 import os
+import glob
+import shutil
+
 
 class H5cppConan(ConanFile):
     name = "h5cpp"
@@ -20,6 +23,7 @@ class H5cppConan(ConanFile):
         "bzip2/1.0.6@conan/stable")
 
     source_name = "{}-{}".format(name, version)
+    suffix = ""
 
     exports = (
         "patches/*.patch")
@@ -40,6 +44,15 @@ class H5cppConan(ConanFile):
 
         tools.patch(base_path=self.source_name, patch_file="patches/ssize_t.patch", strip=1)
 
+        self.suffix = ("_d" if self.settings.build_type == "Debug" else "")
+        tools.replace_in_file(
+            "{}/cmake/EnsureBuildType.cmake".format(self.source_name), "endif()",
+            '''endif()
+            
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX {})
+endif()'''.format(self.suffix))
+
     def build(self):
         cmake = CMake(self)
         cmake.definitions["CMAKE_INSTALL_PREFIX"] = self.package_folder
@@ -52,5 +65,5 @@ class H5cppConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self.name)
 
     def package_info(self):
-        self.cpp_info.libs = ["h5cpp"]
+        self.cpp_info.libs = ["h5cpp"+self.suffix]
 
