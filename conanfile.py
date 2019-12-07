@@ -6,7 +6,7 @@ import shutil
 
 class H5cppConan(ConanFile):
     name = "h5cpp"
-    version = "0.1.0"
+    version = "0.1.3"
     license = "https://raw.githubusercontent.com/ess-dmsc/h5cpp/master/LICENSE"
     author = "KudzuRunner"
     url = "https://github.com/kudzurunner/conan-h5cpp"
@@ -15,22 +15,17 @@ class H5cppConan(ConanFile):
     generators = "cmake"
 
     requires = (
-        "cmake_findboost_modular/1.66.0@bincrafters/stable",
-        "boost_system/1.69.0@bincrafters/stable",
-        "boost_filesystem/1.69.0@bincrafters/stable",
-        "hdf5/1.10.4@kudzurunner/stable",
-        "zlib/1.2.11@conan/stable",
-        "bzip2/1.0.6@conan/stable")
+        "hdf5/1.10.5@kudzurunner/stable",
+        "boost/1.71.0",
+        "zlib/1.2.11",
+        "bzip2/1.0.8")
 
     source_name = "{}-{}".format(name, version)
     suffix = ""
 
-    exports = (
-        "patches/*.patch")
 
     def configure(self):
-        self.options["boost_system"].shared = True
-        self.options["boost_filesystem"].shared = True
+        self.options["boost"].shared = True
         self.options["hdf5"].shared = True
         self.options["zlib"].shared = True
 
@@ -41,8 +36,6 @@ class H5cppConan(ConanFile):
         tools.download(url, filename=archive_name)
         tools.untargz(filename=archive_name)
         os.remove(archive_name)
-
-        tools.patch(base_path=self.source_name, patch_file="patches/ssize_t.patch", strip=1)
 
         self.suffix = ("_d" if self.settings.build_type == "Debug" else "")
         tools.replace_in_file(
